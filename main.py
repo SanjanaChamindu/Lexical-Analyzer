@@ -24,6 +24,7 @@ with open("RPAL_Lex.txt", "r") as file:
 lexer = Lexer()
 
 tokens = list(lexer.tokenize(content))
+tokens = [token for token in tokens if token[0] != 'SPACES']
 
 for token in tokens:
     print(token)
