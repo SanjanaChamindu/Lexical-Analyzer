@@ -1,16 +1,29 @@
-# This is a sample Python script.
+import re
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+class Lexer:
+    def __init__(self):
+        self.tokens = {
+            'IDENTIFIER': r'[A-Za-z][A-Za-z0-9-]*',
+            'INTEGER': r'[0-9]+',
+            'OPERATOR': r'[+<&@:=~?]+',
+            'STRING': r'\\|.+\\|',
+            'COMMENT': r'//.*',
+            'PUNCTUATION': r'[(),]',
+            'SPACES': r'\s+'
+        }
 
+    def tokenize(self, text):
+        token_regex = '|'.join('(?P<%s>%s)' % pair for pair in self.tokens.items())
+        for match in re.finditer(token_regex, text):
+            if match.group():
+                yield match.lastgroup, match.group()
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+with open("RPAL_Lex.txt", "r") as file:
+    content = file.read()
 
+lexer = Lexer()
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+tokens = list(lexer.tokenize(content))
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+for token in tokens:
+    print(token)
