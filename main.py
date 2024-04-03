@@ -1,30 +1,35 @@
 import re
 
-class Lexer:
-    def __init__(self):
-        self.tokens = {
-            'IDENTIFIER': r'[A-Za-z][A-Za-z0-9-]*',
-            'INTEGER': r'[0-9]+',
-            'OPERATOR': r'[+<&@:=~?]+',
-            'STRING': r'\\|.+\\|',
-            'COMMENT': r'//.*',
-            'PUNCTUATION': r'[(),]',
-            'SPACES': r'\s+'
-        }
+def tokenize(code):
+    patterns = {
+        'Identifier': r'[a-zA-Z][a-zA-Z_]*',
+        'Integer': r'[0-9]+',
+        'Comment': r'//.*',
+        'Operator': r'[+\-*/<>&.@/:=~|$!#%^_[\]{}`\'?]',
+        'String': r'\"(?:\\.|[^\\"])*\"',
+        'Spaces': r'\s+',
+        'Punctuation': r'[,;()]'
+    }
 
-    def tokenize(self, text):
-        token_regex = '|'.join('(?P<%s>%s)' % pair for pair in self.tokens.items())
-        for match in re.finditer(token_regex, text):
-            if match.group():
-                yield match.lastgroup, match.group()
+    tokens = []
+    while code:
+        matched = False
+        for token_type, pattern in patterns.items():
+            match = re.match(pattern, code)
+            if match:
+                value = match.group(0)
+                if token_type != 'Spaces' and token_type != 'Comment':
+                    tokens.append((token_type, value))
+                code = code[len(value):]
+                matched = True
+                break
+        if not matched:
+            raise ValueError(f"Invalid token: {code}")
+    return tokens
 
-with open("RPAL_Lex.txt", "r") as file:
-    content = file.read()
+with open("Sample.txt", "r") as file:
+    code = file.read()
 
-lexer = Lexer()
-
-tokens = list(lexer.tokenize(content))
-tokens = [token for token in tokens if token[0] != 'SPACES']
-
+tokens = tokenize(code)
 for token in tokens:
     print(token)
